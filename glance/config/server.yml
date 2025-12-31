@@ -1,0 +1,20 @@
+- name: Server
+  columns:
+    - size: small
+      widgets:
+        - type: server-stats
+          servers:
+            - type: local
+              name: Usage
+              hide-swap: true
+              hide-mountpoints-by-default: true
+              mountpoints:
+                "/":
+                  name: Main Drive
+                  hide: false
+                "/mnt/storage":
+                  name: Storage Drive
+                  hide: false
+    - size: full
+      widgets:
+        - type: calendar

@@ -1,0 +1,81 @@
+- name: Home
+  # Optionally, if you only have a single page you can hide the desktop navigation for a cleaner look
+  # hide-desktop-navigation: true
+  columns:
+    - size: small
+      widgets:
+        - type: calendar
+          first-day-of-week: monday
+
+        - type: twitch-channels
+          channels:
+           - zachstechturf
+           - smii7y
+           - Grizzy
+
+    - size: full
+      widgets:
+        - type: search
+          search-engine: duckduckgo
+
+        - type: videos
+          channels:
+            - UCXuqSBlHAE6Xw-yeJA0Tunw # Linus Tech Tips
+            - UCzXwjTI6c6mVn6oui_p6oiw # Smii7y
+            - UChK0KzE7fazKdo4IfLBk9RQ # Smii7yPlays
+            - UC-gW4TeZAlKm7UATp24JsWQ # Smii7y+
+            - UC7_YxT-KID8kRbqZo7MyscQ # Markiplier
+            - UCC_NjLEb2Sley94py4vSYTA # Andres Vidoza
+            - UC_NZ6qLS9oJgsMKQhqAkg-w # Josean Martinez
+            - UCBS1NUWY7oC6FFHaXQy4zAA # Zach's Tech Turf
+            - UCPbGiUt4Yu8EsaFM-KAmgjg # Grizzy
+
+        - type: group
+          widgets:
+            - type: reddit
+              subreddit: selfhosted
+              show-thumbnails: true
+            - type: reddit
+              subreddit: linux_gaming
+              show-thumbnails: true
+            - type: reddit
+              subreddit: NobaraProject
+              show-thumbnails: true
+            - type: reddit
+              subreddit: degoogle
+              show-thumbnails: true
+            - type: reddit
+              subreddit: piracy
+              show-thumbnails: true
+            - type: reddit
+              subreddit: cyberpunkgame
+              show-thumbnails: true
+            - type: reddit
+              subreddit: witcher
+              show-thumbnails: true
+            - type: reddit
+              subreddit: TombRaider
+              show-thumbnails: true
+
+    - size: small
+      widgets:
+        - type: clock
+          hour-format: 24h
+
+        - type: weather
+          location: Greenville, Texas, United States
+          units: imperial # alternatively "imperial"
+          hour-format: 12h # alternatively "24h"
+          # Optionally hide the location from being displayed in the widget
+          # hide-location: true
+
+        - type: releases
+          cache: 1d
+          # Without authentication the Github API allows for up to 60 requests per hour. You can create a
+          # read-only token from your Github account settings and use it here to increase the limit.
+          # token: ...
+          repositories:
+            - glanceapp/glance
+            - immich-app/immich
+            - dani-garcia/vaultwarden
+            - Nexus-Mods/NexusMods.App
