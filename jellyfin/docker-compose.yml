@@ -8,9 +8,9 @@ services:
       # - 7359:7359/udp 
     volumes:
       - ${DATA_LOCATION}/jellyfin-config:/config
-      - ${DATA_LOCATION}/jellyfin-config/config/index.html:/jellyfin/jellyfin-web/index.html
       - ${DATA_LOCATION}/jellyfin-cache:/cache
       - ${DATA_LOCATION}/data:/data
+      - ${DATA_BACKUP}/data:/data_back
     restart: 'unless-stopped'
     environment:
       - TZ=${TIMEZONE}
@@ -39,10 +39,9 @@ services:
       - ${DATA_LOCATION}/gluetun:/gluetun
       # - ./gluetun/us-den.conf:/gluetun/wireguard/wg0.conf
     environment:
-      - VPN_TYPE=openvpn
+      - VPN_TYPE=wireguard
       - VPN_SERVICE_PROVIDER=protonvpn
-      - OPENVPN_USER=${OPENVPN_USER}
-      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - WIREGUARD_PRIVATE_KEY=${KEY}
       - VPN_PORT_FORWARDING=on
       - SERVER_COUNTRIES=United States
       - TZ=${TIMEZONE}
@@ -62,6 +61,7 @@ services:
     volumes:
       - ${DATA_LOCATION}/qbittorrent:/config
       - ${DATA_LOCATION}/data:/data
+      - ${DATA_BACKUP}/data:/data_back
     restart: unless-stopped
 
   radarr:
@@ -80,6 +80,7 @@ services:
     volumes:
       - ${DATA_LOCATION}/radarr:/config
       - ${DATA_LOCATION}/data:/data
+      - ${DATA_BACKUP}/data:/data_back
 
   sonarr:
     image: lscr.io/linuxserver/sonarr
@@ -97,6 +98,7 @@ services:
     volumes:
       - ${DATA_LOCATION}/sonarr:/config
       - ${DATA_LOCATION}/data:/data
+      - ${DATA_BACKUP}/data:/data_back
 
   lidarr:
     image: lscr.io/linuxserver/lidarr:latest
@@ -113,6 +115,7 @@ services:
     volumes:
       - ${DATA_LOCATION}/lidarr:/config
       - ${DATA_LOCATION}/data:/data
+      - ${DATA_BACKUP}/data:/data_back
     restart: unless-stopped
 
   bazarr:
@@ -131,6 +134,7 @@ services:
     volumes:
       - ${DATA_LOCATION}/bazarr:/config
       - ${DATA_LOCATION}/data:/data
+      - ${DATA_BACKUP}/data:/data_back
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr
@@ -160,16 +164,24 @@ services:
     #   - 8191:8191
     restart: unless-stopped
 
-  jellyseerr:
-    image: fallenbagel/jellyseerr:latest
-    container_name: jellyseerr
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr
     environment:
-      - TZ=${TIMEZONE}   
-      - LOG_LEVEL=info
+      - LOG_LEVEL=debug
+      - TZ=${TIMEZONE}
+      - PORT=5055 #optional
     ports:
-      - "5055:5055"
+      - 5055:5055
     volumes:
-      - ${DATA_LOCATION}/jellyseerr:/app/config
+      - ${DATA_LOCATION}/seerr/config:/app/config
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
     restart: unless-stopped
     depends_on:
       - gluetun
