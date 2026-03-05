@@ -1,0 +1,14 @@
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    user: 1000:1000 # should be owner of volumes
+    ports:
+      - "4533:4533"
+    restart: unless-stopped
+    environment:
+      ND_LASTFM_APIKEY: 76fe798a9247c9ef7010f0751bda4f00
+      ND_LASTFM_SECRET: 4246368016d2b5191b13df30a320674e
+    volumes:
+      - "/mnt/storage/navidrome:/data"
+      - "/mnt/storage/jellyfin/data/media/music:/music:ro"
+
