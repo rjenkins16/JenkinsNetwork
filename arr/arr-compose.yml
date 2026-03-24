@@ -1,0 +1,388 @@
+name: arr
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    ports: # Expose qBittorrent's web UI and torrent ports through VPN
+      # - 8700:8096   # Jellyfin
+      - 8701:8701   # qBittorrent Web UI
+      - 6881:6881   # torrent port
+      - 6881:6881/udp
+      - 7878:7878   # Radarr
+      - 8989:8989   # Sonarr
+      - 8686:8686   # Lidarr
+      - 6767:6767   # Bazarr
+      - 9696:9696   # Prowlarr
+      - 8191:8191   # FlareSolverr
+      - 3001:3001   # Aurral
+      - 3030:3030   # Readmeabook
+      # - 5055:5055   # Jellyseerr
+    volumes:
+      - ${ARR_DATA}/gluetun:/gluetun
+      # - ./gluetun/us-den.conf:/gluetun/wireguard/wg0.conf
+    environment:
+      - VPN_TYPE=wireguard
+      - VPN_SERVICE_PROVIDER=protonvpn
+      - WIREGUARD_PRIVATE_KEY=${KEY}
+      - VPN_PORT_FORWARDING=on
+      - SERVER_COUNTRIES=United States
+      - TZ=${TIMEZONE}
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:5.1.4-r2-ls446
+    container_name: qbittorrent
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+      - WEBUI_PORT=8701
+      - WEBUI_ADDRESS=0.0.0.0
+      - WEBUI_EXTERNAL_ACCESS=true
+    volumes:
+      - ${ARR_DATA}/qbittorrent:/config
+      - ${MEDIA_DATA}:/data
+      - ${DATA_BACKUP}/data:/data_back
+    restart: unless-stopped
+
+  aurral:
+    image: ghcr.io/lklynet/aurral:latest
+    restart: unless-stopped
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    # ports:
+    #   - "3001:3001"
+    environment:
+      - DOWNLOAD_FOLDER=${ARR_DATA}/aurrel/data/downloads/tmp
+    volumes:
+      - ${ARR_DATA}/aurrel/data/downloads/tmp:/app/downloads
+      - ${ARR_DATA}/aurrel/data:/app/backend/data
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:6.0.4.10291-ls295
+    container_name: radarr
+    restart: unless-stopped
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    # ports:
+    #   - 7878:7878
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ARR_DATA}/radarr:/config
+      - ${MEDIA_DATA}:/data
+      - ${DATA_BACKUP}/data:/data_back
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:4.0.17.2952-ls305
+    container_name: sonarr
+    restart: unless-stopped
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    # ports:
+    #   - 8989:8989
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ARR_DATA}/sonarr:/config
+      - ${MEDIA_DATA}:/data
+      - ${DATA_BACKUP}/data:/data_back
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:3.1.0.4875-ls22
+    container_name: lidarr
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    # ports:
+    #   - 8686:8686
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ARR_DATA}/lidarr:/config
+      - ${MEDIA_DATA}:/data
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:v1.5.6-ls341
+    container_name: bazarr
+    restart: unless-stopped
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    # ports:
+    #   - 6767:6767
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ARR_DATA}/bazarr:/config
+      - ${MEDIA_DATA}:/data
+      - ${DATA_BACKUP}/data:/data_back
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:2.3.0.5236-ls139
+    container_name: prowlarr
+    restart: unless-stopped
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    # ports:
+    #   - 9696:9696
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ARR_DATA}/prowlarr:/config
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    environment:
+      - TZ=${TIMEZONE}
+    depends_on:
+      - gluetun
+    # ports:
+    #   - 8191:8191
+    restart: unless-stopped
+
+  readmeabook:
+    image: ghcr.io/kikootwo/readmeabook:1.1.7
+#    build:
+#      context: .
+#      dockerfile: dockerfile.unified
+    container_name: readmeabook
+    restart: unless-stopped
+    network_mode: "service:gluetun"  # Routes all traffic through Gluetun
+    depends_on:
+      - gluetun
+    # ports:
+    #   - "3030:3030"
+    volumes:
+      # Application config and cache
+      - ${ARR_DATA}/readmeabook/config:/app/config
+      - ${ARR_DATA}/readmeabook/cache:/app/cache
+
+      # Downloads and media directories
+      - ${MEDIA_DATA}:/data
+      - ${MEDIA_DATA}/media/books:/media
+
+      # Book Drop: optional folder for Manual Import (Admin → audiobook → Manual Import)
+      # Map any host folder here and it will appear as a browsable root in the file picker.
+      # Example: - /path/to/your/audiobooks:/bookdrop
+      # - ./bookdrop:/bookdrop
+
+      # PostgreSQL data persistence
+      - ${ARR_DATA}/readmeabook/pgdata:/var/lib/postgresql/data
+
+      # Redis data persistence
+      - ${ARR_DATA}/readmeabook/redis:/var/lib/redis
+
+    environment:
+      # ========================================================================
+      # RECOMMENDED: User/Group ID Mapping (Hybrid Approach)
+      # ========================================================================
+      # Set these to match your host user for proper file ownership
+      # Run 'id' on your host to find your UID and GID
+      #
+      # How it works:
+      # - postgres user: Keeps UID 103 (PostgreSQL requirement), uses your PGID
+      # - redis/node:    Fully remapped to your PUID:PGID
+      #
+      # File ownership on host:
+      # - PostgreSQL data (/var/lib/postgresql/data): UID 103, GID <your-PGID>
+      # - Everything else (/downloads, /media, /config): <your-PUID>:<your-PGID>
+      #
+      # For LXC: You only need to passthrough/map container UID 103
+      # See documentation/deployment/unified.md for LXC examples
+      #
+      PUID: 1000
+      PGID: 1000
+
+      # ========================================================================
+      # OPTIONAL: Secrets (auto-generated on first run if not provided)
+      # ========================================================================
+      # Uncomment and set these if you want to use custom secrets:
+      # JWT_SECRET: "your-custom-jwt-secret-here"
+      # JWT_REFRESH_SECRET: "your-custom-jwt-refresh-secret-here"
+      # CONFIG_ENCRYPTION_KEY: "your-custom-encryption-key-here"
+      # POSTGRES_PASSWORD: "your-custom-postgres-password-here"
+
+      # ========================================================================
+      # OPTIONAL: External PostgreSQL and Redis
+      # ========================================================================
+      # To use external PostgreSQL or Redis instances instead of the internal ones,
+      # uncomment and configure the appropriate URL(s):
+      #
+      # External PostgreSQL example:
+      # DATABASE_URL: "postgresql://username:password@postgres.example.com:5432/readmeabook"
+      #
+      # External Redis example:
+      # REDIS_URL: "redis://redis.example.com:6379"
+      # REDIS_URL: "redis://:password@redis.example.com:6379"  # With password
+      #
+      # Note: When using external services:
+      # - The internal PostgreSQL/Redis will NOT start (smart detection)
+      # - You do NOT need to mount ./pgdata or ./redis volumes
+      # - Ensure your external services are accessible from the container
+
+      # ========================================================================
+      # OPTIONAL: Rootless Podman Support
+      # ========================================================================
+      # Set to "true" ONLY if running with rootless Podman.
+      # This skips gosu UID/GID switching since the user namespace already
+      # handles mapping. Do NOT enable for Docker or LXC - it will cause
+      # files to be created as root.
+      # ROOTLESS_CONTAINER: "true"
+
+      # ========================================================================
+      # OPTIONAL: Application Configuration
+      # ========================================================================
+      # Only set these if you need non-default values:
+      # POSTGRES_USER: "readmeabook"
+      # POSTGRES_DB: "readmeabook"
+      # PLEX_CLIENT_IDENTIFIER: "readmeabook-custom-id"
+      # PLEX_PRODUCT_NAME: "ReadMeABook"
+      # LOG_LEVEL: "info"
+      # DISABLE_LOCAL_LOGIN: "true"  # Set to "true" to disable local login (force OAuth)
+      # ALLOW_WEAK_PASSWORD: "true"  # Set to "true" to remove minimum password length requirement
+
+
+      # ========================================================================
+      # IMPORTANT: Public URL Configuration (Required for OAuth)
+      # ========================================================================
+      # Set this to your public URL for OAuth callbacks (Plex/OIDC authentication)
+      # Format: https://your-domain.com (no trailing slash)
+      # REQUIRED if accessing from outside localhost or using OIDC/Plex OAuth
+      # See: documentation/backend/services/environment.md
+      # PUBLIC_URL: "https://readmeabook.yourdomain.com"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3030/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  youtarr-db:
+    image: mariadb:10.3
+    container_name: youtarr-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-123qweasd}
+      MYSQL_DATABASE: ${DB_NAME:-youtarr}
+      MYSQL_TCP_PORT: ${DB_PORT:-3321}
+      # Set utf8mb4 as default for new installations
+      # Only set MYSQL_USER / MYSQL_PASSWORD if you configure a non-root DB_USER user in .env
+      # MYSQL_USER: ${DB_USER}
+      # MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "${DB_PORT:-3321}:${DB_PORT:-3321}"
+    volumes:
+      - ${ARR_DATA}/youtarr/database:/var/lib/mysql
+    command: --port=${DB_PORT:-3321} --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-file-per-table=1 --innodb-large-prefix=ON
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-P", "${DB_PORT:-3321}", "-u", "${DB_USER:-root}", "-p${DB_PASSWORD:-123qweasd}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  youtarr:
+    image: ${YOUTARR_IMAGE:-dialmaster/youtarr:latest}
+    container_name: youtarr
+    restart: unless-stopped
+    # Optional: Run as specific UID:GID for security (defaults to root if not set for backwards compatibility with existing users)
+    user: "${YOUTARR_UID:-0}:${YOUTARR_GID:-0}"
+    depends_on:
+      youtarr-db:
+        condition: service_healthy
+    environment:
+      # DEPRECATED but retained for backwards compatibility with old images for now
+      IN_DOCKER_CONTAINER: 1
+      TZ: ${TZ:-UTC}
+      DB_HOST: ${DB_HOST:-youtarr-db}
+      DB_PORT: ${DB_PORT:-3321}
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-123qweasd}
+      DB_NAME: ${DB_NAME:-youtarr}
+      # Optional: Disable authentication (for platforms with external auth like Elfhosted)
+      AUTH_ENABLED: ${AUTH_ENABLED:-}
+      # Optional: Seed initial admin credentials for headless deployments
+      AUTH_PRESET_USERNAME: ${AUTH_PRESET_USERNAME:-}
+      AUTH_PRESET_PASSWORD: ${AUTH_PRESET_PASSWORD:-}
+      # Logging configuration
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # This is just informational and lets the app know where the videos will be stored on the host
+      YOUTUBE_OUTPUT_DIR: ${MEDIA_DATA}/media/youtube
+      # Optional: Custom data path for platforms like Elfhosted (defaults to /usr/src/app/data)
+      # This is the internal path where videos download inside the container and is not needed for most users
+      # DATA_PATH: /storage/rclone/storagebox/youtube
+
+    ports:
+      - "3087:3011"
+    volumes:
+      - ${MEDIA_DATA}/media/youtube:/usr/src/app/data
+      - ${ARR_DATA}/youtarr/server/images:/app/server/images
+      - ${ARR_DATA}/youtarr/config:/app/config
+      - ${ARR_DATA}/youtarr/jobs:/app/jobs
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "--output", "/dev/null", "http://localhost:3011/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  seerr:
+    image: ghcr.io/seerr-team/seerr:v3.1.0
+    init: true
+    container_name: seerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TIMEZONE}
+      - PORT=5055 #optional
+    ports:
+      - 5055:5055
+    volumes:
+      - ${ARR_DATA}/seerr/config:/app/config
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
+    restart: unless-stopped
+    depends_on:
+      - gluetun
+      - jellyfin
+      - sonarr
+      - radarr
+
+networks:
+  default:
+    name: youtarr-network
+
+# Named volume definition (used by docker-compose.arm.yml override for ARM systems)
+volumes:
+  youtarr-db-data:

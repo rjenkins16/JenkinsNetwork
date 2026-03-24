@@ -1,23 +1,15 @@
-services:
-  ### THIS IS OPTIONAL
-  apprise-api: # You can bring your own Apprise API (or completely not use it), just make sure to update the environment variable for PatchPanda
-    image: caronc/apprise:latest
-    container_name: apprise-api
-    environment:
-      - APPRISE_STATEFUL_MODE=disabled
-    ports:
-      - 6603:8000
-  ### OPTIONAL ENDS HERE
+name: monitoring
 
+services:
   patchpanda:
     container_name: patchpanda-app
     image: ghcr.io/dkorecko/patchpanda:latest
     environment:
-      - APPRISE_API_URL=http://apprise-api:8000 # optional, if you run an Apprise API and want to use it for notifications
+      #- APPRISE_API_URL=http://apprise-api:8000 # optional, if you run an Apprise API and want to use it for notifications
       #- APPRISE_NOTIFICATION_URLS=discord://webhook_id/webhook_token,mailto://user:password@gmail.com # optional, comma-separated list of Apprise notification URLs
       #- DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/... # optional, use your discord webhook URL here for the direct discord integration
-      - GITHUB_USERNAME=yourusername # use your GitHub username here
-      - GITHUB_PASSWORD=yourtoken # use your GitHub personal access token here
+      - GITHUB_USERNAME=rjenkins16 # use your GitHub username here
+      - GITHUB_PASSWORD=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 # use your GitHub personal access token here
       - BASE_URL=http://localhost:5093 # adjust to what URL you will use to access PatchPanda
       # - PORTAINER_URL=http://portainer:9000 # if you wish to include stacks fully managed by Portainer
       # - PORTAINER_IGNORE_SSL=true # optional, only for trusted self-signed certs
@@ -30,10 +22,24 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw # This can remain, no matter whether you're using Docker on Linux or Windows
       # DOCKER ON LINUX VARIANT
-      - /srv/www:/srv/www:rw # This should be a path which contains the compose files as part of its subdirectories. For PatchPanda to discover compose files, the container path should match the host path. This is not a general Docker Compose requirement.
+      - /home/reidj/github/JenkinsNetwork:/home/reidj/github/JenkinsNetwork:rw # This should be a path which contains the compose files as part of its subdirectories. For PatchPanda to discover compose files, the container path should match the host path. This is not a general Docker Compose requirement.
       # DOCKER ON WINDOWS VARIANT
       # /c/Users/PC/testing-compose:/c/Users/PC/testing-compose:rw # This should be a path which contains the compose files as part of its subdirectories. For PatchPanda to discover compose files, the container path should match the host path. This is not a general Docker Compose requirement. Make sure to format the paths like this, given that your initial path was C:\Users\PC\testing-compose.
-      - ./data:/app/data:rw # persistent data storage for SQLite
+      - ${MONITORING_DATA}/patch/data:/app/data:rw # persistent data storage for SQLite
     ports:
       - "5093:8080" # adjust as needed
     restart: unless-stopped
+
+  glance:
+    container_name: glance
+    image: glanceapp/glance
+    restart: unless-stopped
+    volumes:
+      - ${MONITORING_DATA}/glance/config:/app/config
+      - ${MONITORING_DATA}/glance/assets:/app/assets
+      - /etc/localtime:/etc/localtime:ro
+      # Optionally, also mount docker socket if you want to use the docker containers widget
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - 8081:8080
+    env_file: .env

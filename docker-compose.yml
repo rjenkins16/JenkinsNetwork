@@ -1,0 +1,11 @@
+# Master Docker Compose - JenkinsNetwork
+# This orchestrates all your stack stacks
+name: jenkinsnetwork
+
+# Include individual stack compose files
+include:
+  - network/network-compose.yml
+  - storage/storage-compose.yml
+  - media/media-compose.yml
+  - monitoring/monitoring-compose.yml
+  - arr/arr-compose.yml

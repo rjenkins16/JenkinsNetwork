@@ -1,0 +1,97 @@
+name: media
+
+services:
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    ports:
+      - 13378:80
+    volumes:
+      - ${MEDIA_DATA}/data/media/books:/audiobooks
+      - ${MEDIA_DATA}/data/media/podcasts:/podcasts
+      - ${MEDIA_DATA}/audiobookshelf/config:/config
+      - ${MEDIA_DATA}/audiobookshelf/metadata:/metadata
+    environment:
+      - TZ=America/Chicago
+
+  dispatcharr:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: ghcr.io/dispatcharr/dispatcharr:0.21.0
+    restart: unless-stopped
+    container_name: dispatcharr
+    ports:
+      - 9191:9191
+    volumes:
+      - ${MEDIA_DATA}/dispatch:/data
+    environment:
+      - DISPATCHARR_ENV=aio
+      - REDIS_HOST=localhost
+      - CELERY_BROKER_URL=redis://localhost:6379/0
+      - DISPATCHARR_LOG_LEVEL=info
+      # Legacy CPU Support (Optional)
+      # Uncomment to enable legacy NumPy build for older CPUs (circa 2009)
+      # that lack support for newer baseline CPU features
+      #- USE_LEGACY_NUMPY=true
+      # Process Priority Configuration (Optional)
+      # Lower values = higher priority. Range: -20 (highest) to 19 (lowest)
+      # Negative values require cap_add: SYS_NICE (uncomment below)
+      #- UWSGI_NICE_LEVEL=-5   # uWSGI/FFmpeg/Streaming (default: 0, recommended: -5 for high priority)
+      #- CELERY_NICE_LEVEL=5   # Celery/EPG/Background tasks (default: 5, low priority)
+    #
+    # Uncomment to enable high priority for streaming (required if UWSGI_NICE_LEVEL < 0)
+    #cap_add:
+    #  - SYS_NICE
+    # Optional for hardware acceleration
+    #devices:
+    #  - /dev/dri:/dev/dri  # For Intel/AMD GPU acceleration (VA-API)
+    # Uncomment the following lines for NVIDIA GPU support
+    # NVidia GPU support (requires NVIDIA Container Toolkit)
+    #deploy:
+    #  resources:
+    #      reservations:
+    #          devices:
+    #              - driver: nvidia
+    #                count: all
+    #                capabilities: [gpu]
+  
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    user: 1000:1000
+    ports:
+      - 8096:8096/tcp
+      # - 7359:7359/udp 
+    volumes:
+      - ${MEDIA_DATA}/jellyfin/config:/config
+      - ${MEDIA_DATA}/jellyfin/cache:/cache
+      - ${MEDIA_DATA}/data:/data
+      - ${DATA_BACKUP}/data:/data_back
+    restart: 'unless-stopped'
+    environment:
+      - TZ=${TIMEZONE}
+      - /dev/dri:/dev/dri
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+
+  navidrome:
+    image: deluan/navidrome:latest
+    user: 1000:1000 # should be owner of volumes
+    ports:
+      - "4533:4533"
+    restart: unless-stopped
+    environment:
+      ND_LASTFM_APIKEY: 76fe798a9247c9ef7010f0751bda4f00
+      ND_LASTFM_SECRET: 4246368016d2b5191b13df30a320674e
+    volumes:
+      - "${MEDIA_DATA}/navidrome:/data"
+      - "${MEDIA_DATA}/data/media/music:/music:ro"
+
+
+volumes:
+  dispatcharr_data:
