@@ -9,7 +9,7 @@ services:
       #- APPRISE_NOTIFICATION_URLS=discord://webhook_id/webhook_token,mailto://user:password@gmail.com # optional, comma-separated list of Apprise notification URLs
       #- DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/... # optional, use your discord webhook URL here for the direct discord integration
       - GITHUB_USERNAME=rjenkins16 # use your GitHub username here
-      - GITHUB_PASSWORD=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 # use your GitHub personal access token here
+      - GITHUB_PASSWORD=${GITHUB_KEY} # use your GitHub personal access token here
       - BASE_URL=http://localhost:5093 # adjust to what URL you will use to access PatchPanda
       # - PORTAINER_URL=http://portainer:9000 # if you wish to include stacks fully managed by Portainer
       # - PORTAINER_IGNORE_SSL=true # optional, only for trusted self-signed certs
