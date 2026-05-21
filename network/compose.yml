@@ -6,6 +6,10 @@ services:
     hostname: dns-server
     image: technitium/dns-server:latest
     network_mode: "host"
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
     env_file:
       - .env
     # ports:
@@ -54,6 +58,10 @@ services:
     image: 'docker.io/jc21/nginx-proxy-manager:latest'
     restart: unless-stopped
     network_mode: "host"
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
     volumes:
       - ${NETWORK_DATA}/nginx/data:/data
       - ${NETWORK_DATA}/nginx/data/letsencrypt:/etc/letsencrypt

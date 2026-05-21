@@ -375,7 +375,6 @@ services:
     restart: unless-stopped
     depends_on:
       - gluetun
-      - jellyfin
       - sonarr
       - radarr
 
