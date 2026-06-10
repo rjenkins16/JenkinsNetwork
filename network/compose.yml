@@ -87,6 +87,8 @@ services:
     image: searxng/searxng:latest
     networks:
       - searxng
+    dns:
+      - 192.168.1.111
     ports:
       - "${SEARXNG_PORT:-8080}:8080"
     volumes:

@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  dashboard:
+    image: jenkinsnetwork-dashboard
+    container_name: jenkinsnetwork-dashboard
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - PORT=80
+      - NODE_ENV=production
+    # Resource limits for stability
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    # Additional security settings
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    # Enhanced security
+    security_opt:
+      - no-new-privileges:true
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Added security restrictions
+    user: "1000:1000"

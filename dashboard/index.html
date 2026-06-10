@@ -1,0 +1,205 @@
+# JenkinsNetwork Dashboard
+
+## JenkinsNetwork System Monitoring Dashboard
+
+Welcome to your JenkinsNetwork centralized monitoring dashboard. This interface provides real-time visibility into all your running services, system resources, and quick management controls.
+
+### System Overview
+
+<div class="system-overview">
+  <div class="status-card">
+    <h3>System Status</h3>
+    <p class="status-indicator good">All Services Operational</p>
+    <p>Uptime: 14 days, 3 hours</p>
+    <p>Load Average: 0.85</p>
+  </div>
+  
+  <div class="resource-card">
+    <h3>CPU Usage</h3>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 12%"></div>
+    </div>
+    <p>12% of 16 cores</p>
+  </div>
+  
+  <div class="resource-card">
+    <h3>Memory Usage</h3>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 38%"></div>
+    </div>
+    <p>38% of 62GB</p>
+  </div>
+  
+  <div class="resource-card">
+    <h3>Disk Usage</h3>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 60%"></div>
+    </div>
+    <p>60% of 3.7TB</p>
+  </div>
+</div>
+
+### Container Status Grid
+
+<div class="container-grid">
+  <div class="container-card">
+    <h4>Jellyfin</h4>
+    <p class="status-indicator good">Running</p>
+    <p>8096/tcp</p>
+    <div class="container-actions">
+      <button class="btn-small btn-start">Start</button>
+      <button class="btn-small btn-stop">Stop</button>
+      <button class="btn-small btn-restart">Restart</button>
+    </div>
+  </div>
+  
+  <div class="container-card">
+    <h4>Sonarr</h4>
+    <p class="status-indicator good">Running</p>
+    <p>8989/tcp</p>
+    <div class="container-actions">
+      <button class="btn-small btn-start">Start</button>
+      <button class="btn-small btn-stop">Stop</button>
+      <button class="btn-small btn-restart">Restart</button>
+    </div>
+  </div>
+  
+  <div class="container-card">
+    <h4>Radarr</h4>
+    <p class="status-indicator good">Running</p>
+    <p>7878/tcp</p>
+    <div class="container-actions">
+      <button class="btn-small btn-start">Start</button>
+      <button class="btn-small btn-stop">Stop</button>
+      <button class="btn-small btn-restart">Restart</button>
+    </div>
+  </div>
+  
+  <div class="container-card">
+    <h4>Lidarr</h4>
+    <p class="status-indicator good">Running</p>
+    <p>8686/tcp</p>
+    <div class="container-actions">
+      <button class="btn-small btn-start">Start</button>
+      <button class="btn-small btn-stop">Stop</button>
+      <button class="btn-small btn-restart">Restart</button>
+    </div>
+  </div>
+  
+  <div class="container-card">
+    <h4>Bazarr</h4>
+    <p class="status-indicator good">Running</p>
+    <p>6767/tcp</p>
+    <div class="container-actions">
+      <button class="btn-small btn-start">Start</button>
+      <button class="btn-small btn-stop">Stop</button>
+      <button class="btn-small btn-restart">Restart</button>
+    </div>
+  </div>
+  
+  <div class="container-card">
+    <h4>Navidrome</h4>
+    <p class="status-indicator good">Running</p>
+    <p>4533/tcp</p>
+    <div class="container-actions">
+      <button class="btn-small btn-start">Start</button>
+      <button class="btn-small btn-stop">Stop</button>
+      <button class="btn-small btn-restart">Restart</button>
+    </div>
+  </div>
+</div>
+
+### Stack Management
+
+<div class="stack-container">
+  <h3>Service Stacks</h3>
+  
+  <div class="stack-card">
+    <h4>Network Stack</h4>
+    <ul>
+      <li>nginx-proxy-manager</li>
+      <li>Technitium DNS Server</li>
+      <li>SearxNG</li>
+    </ul>
+    <div class="stack-actions">
+      <button class="btn-stack">Start</button>
+      <button class="btn-stack">Stop</button>
+      <button class="btn-stack">Update</button>
+    </div>
+  </div>
+  
+  <div class="stack-card">
+    <h4>Media Stack</h4>
+    <ul>
+      <li>Jellyfin</li>
+      <li>Navidrome</li>
+      <li>Audiobookshelf</li>
+      <li>Bazarr</li>
+      <li>Aural</li>
+      <li>Seerr</li>
+      <li>Youtarr</li>
+    </ul>
+    <div class="stack-actions">
+      <button class="btn-stack">Start</button>
+      <button class="btn-stack">Stop</button>
+      <button class="btn-stack">Update</button>
+    </div>
+  </div>
+  
+  <div class="stack-card">
+    <h4>Storage Stack</h4>
+    <ul>
+      <li>Immich</li>
+      <li>Vaultwarden</li>
+      <li>Gluetun</li>
+      <li>MariaDB</li>
+      <li>Valkey</li>
+      <li>Redis</li>
+      <li>Dispatcharr</li>
+    </ul>
+    <div class="stack-actions">
+      <button class="btn-stack">Start</button>
+      <button class="btn-stack">Stop</button>
+      <button class="btn-stack">Update</button>
+    </div>
+  </div>
+  
+  <div class="stack-card">
+    <h4>*arr* Stack</h4>
+    <ul>
+      <li>Sonarr</li>
+      <li>Radarr</li>
+      <li>Lidarr</li>
+      <li>Flaresolverr</li>
+      <li>Prowlarr</li>
+    </ul>
+    <div class="stack-actions">
+      <button class="btn-stack">Start</button>
+      <button class="btn-stack">Stop</button>
+      <button class="btn-stack">Update</button>
+    </div>
+  </div>
+</div>
+
+### Recent Activity
+
+<div class="activity-feed">
+  <h3>Recent System Activity</h3>
+  <ul>
+    <li>2026-05-23 08:30:45 - Started Jellyfin container</li>
+    <li>2026-05-22 16:15:22 - Updated Sonarr container</li>
+    <li>2026-05-21 22:45:10 - System backup completed</li>
+    <li>2026-05-20 10:30:05 - Updated DNS configuration</li>
+    <li>2026-05-19 14:20:30 - MariaDB database optimized</li>
+  </ul>
+</div>
+
+### Quick Actions
+
+<div class="quick-actions">
+  <h3>Quick Management</h3>
+  <button class="btn-large btn-primary">Start All</button>
+  <button class="btn-large btn-warning">Stop All</button>
+  <button class="btn-large btn-info">Update All</button>
+  <button class="btn-large btn-success">System Health Check</button>
+</div>
